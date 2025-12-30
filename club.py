@@ -208,7 +208,7 @@ def handle_tariff(call):
 Сумма: {selected_amount}₽
 
 Для оплаты:
-1. Переведите {selected_amount}₽ на {SBER_PHONE}"""
+1. Переведите {selected_amount}₽ на Сбер по номеру {SBER_PHONE}"""
     
     if SBER_CARD:
         message_text += f"\n\nИли на карту: {SBER_CARD}"
