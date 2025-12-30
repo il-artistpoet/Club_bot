@@ -77,20 +77,45 @@ def webhook():
 # ========== ОСНОВНЫЕ КОМАНДЫ ==========
 @bot.message_handler(commands=['start'])
 def start(message):
-    """Начало работы с ботом"""
     user_id = message.from_user.id
     logger.info(f"🚀 /start от {user_id}")
     
-    # Приветствие
-    bot.send_message(
-        user_id,
-        "Приветствую Вас. Оставайтесь на волне созерцания и пленэра!"
+    # 1. Приветственное сообщение и ОТПРАВКА ФОТО
+    try:
+        # Вариант 1: Если фото лежит в той же папке на Render
+        with open('photo.png', 'rb') as photo:
+            bot.send_photo(user_id, photo)
+            logger.info(f"📸 Фото отправлено пользователю {user_id}")
+            
+    except FileNotFoundError:
+        # Если файл не найден
+        logger.error(f"❌ Файл photo.png не найден!")
+        bot.send_message(
+            user_id,
+            "🎨Приветствую Вас. Оставайтесь на волне созерцания и пленэра!"
+        )
+        
+    except Exception as e:
+        # Любая другая ошибка
+        logger.error(f"❌ Ошибка при отправке фото: {e}")
+        bot.send_message(
+            user_id,
+            "🎨 Добро пожаловать в Пленэрный Клуб!"
+        )
+    
+    # 3. Основное сообщение с кнопками (остальной код без изменений)
+    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+    
+    btn_more = telebot.types.InlineKeyboardButton(
+        text="Узнать больше",
+        url=TILDA_LINK
     )
     
-    # Кнопки
-    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
-    btn_more = telebot.types.InlineKeyboardButton("Узнать больше", url=TILDA_LINK)
-    btn_club = telebot.types.InlineKeyboardButton("Хочу в клуб!", callback_data="join_club")
+    btn_club = telebot.types.InlineKeyboardButton(
+        text="Хочу в клуб!",
+        callback_data="join_club"
+    )
+    
     markup.add(btn_more, btn_club)
     
     bot.send_message(
@@ -257,7 +282,7 @@ def handle_upgrade(call):
         f"🎉 ВЫ ПЕРЕХОДИТЕ НА 'УЧАСТНИКА'!\n\n"
         f"✅ Новый тариф: {new_tariff.upper()}\n"
         f"💰 К доплате: {to_pay}₽\n\n"
-        f"Доплатите {to_pay}₽ на:\n"
+        f"Доплатите {to_pay}₽ на Сбер по номеру:\n"
         f"📱 {SBER_PHONE}\n\n"
         f"И отправьте скриншот в этот чат!\n\n"
         f"После доплаты вы получите:\n"
